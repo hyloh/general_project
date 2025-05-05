@@ -1,0 +1,324 @@
+CREATE TABLE Driver(
+DriverID VARCHAR(10) PRIMARY KEY,
+DriverName VARCHAR(40) NOT NULL,
+ContactDetails VARCHAR(15),
+VehicleDetails VARCHAR(25)  NOT NULL
+);
+
+CREATE TABLE PartTime (
+    PartTimeDriverID VARCHAR(10) PRIMARY KEY,
+    DaySalaryPaid FLOAT(10) NOT NULL
+);
+
+CREATE TABLE FullTime (
+    FullTimeDriverID VARCHAR(10) PRIMARY KEY,
+    MonthSalaryPaid FLOAT(10) NOT NULL
+);
+
+CREATE TABLE Order (
+    OrderID VARCHAR(10) PRIMARY KEY,
+    FruitType VARCHAR(15),
+    OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    TotalAmount DECIMAL(10,2) NOT NULL,
+    PaymentStatus VARCHAR(20),
+    QueueNumber VARCHAR(10),
+    CustomerID VARCHAR(10) NOT NULL,
+    DriverID VARCHAR(10) NOT NULL,
+    CONSTRAINT fk_order_customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    CONSTRAINT fk_order_driver FOREIGN KEY (DriverID) REFERENCES Driver(DriverID)
+);
+
+CREATE TABLE Payment (
+    PaymentID VARCHAR(10) PRIMARY KEY,
+    PaymentMethod VARCHAR(15) NOT NULL,
+    CustomerID VARCHAR(10) NOT NULL,
+    SellerID VARCHAR(10) NOT NULL,
+    SupplierID VARCHAR(10) NOT NULL,
+    CONSTRAINT fk_payment_customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    CONSTRAINT fk_payment_seller FOREIGN KEY (SellerID) REFERENCES Seller(SellerID),
+    CONSTRAINT fk_payment_supplier FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
+);
+
+CREATE TABLE OnlinePayment (
+    OnlinePaymentID VARCHAR(10) PRIMARY KEY,
+    AmountPaid FLOAT(10),
+    PaymentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Cash (
+    CashID VARCHAR(10) PRIMARY KEY,
+    TotalPaid FLOAT(10)
+);
+
+CREATE TABLE Inventory(
+   InventoryID VARCHAR(10) PRIMARY KEY,
+    FruitType VARCHAR(15),
+    QuantityAvailable VARCHAR(5) NOT NULL,
+    SellerID VARCHAR(10) NOT NULL,
+    FOREIGN KEY (SellerID) REFERENCES Seller(SellerID)
+);
+
+CREATE TABLE Invoice(
+    InvoiceID VARCHAR(10) PRIMARY KEY,
+    InvoiceDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    TotalAmount DECIMAL(10,2) NOT NULL,
+    OrderID VARCHAR(10) NOT NULL,
+    SellerID VARCHAR(10) NOT NULL,
+    CONSTRAINT fk_invoice_order FOREIGN KEY (OrderID) REFERENCES Order(OrderID),
+    CONSTRAINT fk_invoice_seller FOREIGN KEY (SellerID) REFERENCES Seller(SellerID)
+);
+
+
+
+CREATE TABLE Customer(
+    CustomerID VARCHAR(10) PRIMARY KEY,
+    CustomerName VARCHAR(40) NOT NULL,
+    fNAME VARCHAR(20) NOT NULL,
+    lName VARCHAR(20) NOT NULL,
+    ContactNo VARCHAR(12) NOT NULL,
+    Street VARCHAR(20) NOT NULL,
+    City VARCHAR(15) NOT NULL,
+    Postcode VARCHAR(5) NOT NULL
+);
+
+CREATE TABLE Seller(
+    SellerID VARCHAR(10) PRIMARY KEY,
+    SellerName VARCHAR(40) NOT NULL,
+    fName VARCHAR(20) NOT NULL,
+    lName VARCHAR(20) NOT NULL,
+    ContactNo VARCHAR(12) NOT NULL,
+    Email VARCHAR(40) NOT NULL,
+    Location VARCHAR(50) NOT NULL,
+    CustomerID VARCHAR(10),
+    SupplierID VARCHAR(10),
+    InvoiceID VARCHAR(10),
+    CONSTRAINT fk_seller_customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    CONSTRAINT fk_seller_supplier FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
+////    CONSTRAINT fk_seller_invoice FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID)
+);
+
+CREATE TABLE Supplier(
+    SupplierID VARCHAR(10) PRIMARY KEY,
+    SupplierName VARCHAR(40) NOT NULL,
+    fName VARCHAR(10) NOT NULL,
+    lName VARCHAR(10) NOT NULL,
+    ContactNo VARCHAR(12) NOT NULL,
+    Email VARCHAR(40) NOT NULL,
+    Address VARCHAR(50) NOT NULL,
+    Street VARCHAR(20) NOT NULL
+);
+
+
+
+
+
+–Driver
+INSERT INTO Driver (DriverID, DriverName, ContactDetails, VehicleDetails)
+VALUES ('D001', 'Andy Liu', '01234567890', 'Proton Vira');
+
+INSERT INTO Driver (DriverID, DriverName, ContactDetails, VehicleDetails)
+VALUES ('D002', 'Brayan Lee', '01234567891', 'Proton Saga');
+
+INSERT INTO Driver (DriverID, DriverName, ContactDetails, VehicleDetails)
+VALUES ('D003', 'Charmen Tee', '01234567890', 'Proton Persona');
+
+–View Driver table
+SELECT * FROM Driver;
+
+– Change contact number
+UPDATE Driver
+SET ContactDetails = 01188888888
+WHERE DriverID = 'D003';
+
+–View the Driver table after update
+SELECT * FROM Driver;
+
+
+
+–Part-time
+INSERT INTO PartTime (PartTimeDriverID, DaySalaryPaid)
+VALUES ('PT001', 48);
+
+INSERT INTO PartTime (PartTimeDriverID, DaySalaryPaid)
+VALUES ('PT002', 64);
+
+–View Part-time table
+SELECT * FROM PartTime;
+
+
+
+–Full-time
+INSERT INTO FullTime (FullTimeDriverID, MonthSalaryPaid) 
+VALUES ('FT001', 1600);
+
+INSERT INTO FullTime (FullTimeDriverID, MonthSalaryPaid)
+VALUES ('FT002', 1800);
+
+INSERT INTO FullTime (FullTimeDriverID, MonthSalaryPaid)
+VALUES ('FT003', 2000);
+
+–View Full-time table
+SELECT * FROM FullTime;
+
+
+
+–Place an order
+INSERT INTO `Order` (OrderID, FruitType, OrderDate, TotalAmount, PaymentStatus, QueueNumber,  CustomerID, DriverID)
+VALUES ('O001', 'apple', SYSDATE(), 12.00, 'successful', 'Q001', 'C001', 'D001');
+
+INSERT INTO `Order` (OrderID, FruitType, OrderDate, TotalAmount, PaymentStatus, QueueNumber,  CustomerID, DriverID)
+VALUES ('O002', 'melon', SYSDATE(), 20.00, 'successful', 'Q002', 'C002', 'D002');
+
+INSERT INTO `Order` (OrderID, FruitType, OrderDate, TotalAmount, PaymentStatus, QueueNumber,  CustomerID, DriverID)
+VALUES ('O003', 'berries', SYSDATE(), 22.00, 'successful', 'Q003', 'C001', 'D001');
+
+INSERT INTO `Order` (OrderID, FruitType, OrderDate, TotalAmount, PaymentStatus, QueueNumber,  CustomerID, DriverID)
+VALUES ('O004', 'pears', SYSDATE(), 15.00, 'unsuccessful', 'Q004', 'C003', 'D003');
+
+–View the order table
+SELECT * FROM `Order`;
+
+–Update an order being canceled
+UPDATE `Order`
+SET PaymentStatus = 'Cancelled'
+WHERE OrderID = 'O003';
+
+–View the Order table after update
+SELECT * FROM `Order`;
+
+–Deleting a canceled order
+DELETE FROM `Order`
+WHERE OrderID = 'O003';
+
+–View the order table after updated
+SELECT * FROM `Order`;
+
+
+
+–Make payment
+INSERT INTO Payment (PaymentID, PaymentMethod, CustomerID, SellerID, SupplierID)
+VALUES ('P001', 'OnlinePayment', 'C001', 'SE001', 'S001');
+
+INSERT INTO Payment (PaymentID, PaymentMethod, CustomerID, SellerID, SupplierID)
+VALUES ('P002', 'OnlinePayment', 'C002', 'SE001', 'S001');
+
+INSERT INTO Payment (PaymentID, PaymentMethod, CustomerID, SellerID, SupplierID)
+VALUES ('P003', 'Cash', 'C001', 'SE002', 'S002');
+
+INSERT INTO Payment (PaymentID, PaymentMethod, CustomerID, SellerID, SupplierID)
+VALUES ('P004', 'OnlinePayment', 'C003', 'SE003', 'S003');
+
+–View Payment table
+SELECT * FROM Payment;
+
+–Delete wrong payment	
+DELETE FROM Payment
+WHERE PaymentID = 'P004';
+
+–View Payment table
+SELECT * FROM Payment;
+
+
+
+–Online Payment
+INSERT INTO OnlinePayment (OnlinePaymentID, AmountPaid, PaymentDate)
+VALUES ('ON001', 12.00, SYSDATE());
+
+INSERT INTO OnlinePayment (OnlinePaymentID, AmountPaid, PaymentDate)
+VALUES ('ON002', 20.00, SYSDATE());
+
+–View Online payment table
+SELECT * FROM OnlinePayment;
+
+
+
+–Cash
+INSERT INTO Cash (CashID, TotalPaid)
+VALUES ('CA001', 22);
+
+–View Cash table
+SELECT * FROM Cash;
+
+–Change online payment to cash
+DELETE FROM OnlinePayment
+WHERE OnlinePaymentID = 'ON002';
+INSERT INTO Cash (CashID, TotalPaid)
+VALUES ('CA002', 22);
+
+–View the Cash and Online payment table
+SELECT * FROM Cash;
+SELECT * FROM OnlinePayment;
+
+
+
+–Inventory
+INSERT INTO Inventory (InventoryID, FruitType, QuantityAvailable, SellerID)
+VALUES ('IR001', 'apple', 100, 'SE001');
+
+INSERT INTO Inventory (InventoryID, FruitType, QuantityAvailable, SellerID)
+VALUES ('IR002', 'mango', 100, 'SE002');
+
+INSERT INTO Inventory (InventoryID, FruitType, QuantityAvailable, SellerID)
+VALUES ('IR003', 'banana', 100, 'SE002');
+
+–View Inventory table
+SELECT * FROM Inventory;
+
+–Update Inventory
+UPDATE Inventory
+SET FruitType = 'orange', QuantityAvailable = 110, SellerID = 'SE002'
+WHERE InventoryID = 'IR002';
+
+–View Inventory table
+SELECT * FROM Inventory;
+
+
+
+–Invoice
+INSERT INTO Invoice (InvoiceID, InvoiceDate, TotalAmount, OrderID, SellerID)
+VALUES ('I001', SYSDATE(), 200, 'O001', 'SE001');
+
+INSERT INTO Invoice (InvoiceID, InvoiceDate, TotalAmount, OrderID, SellerID)
+VALUES ('I002', SYSDATE(), 150, 'O001', 'SE002');
+
+INSERT INTO Invoice (InvoiceID, InvoiceDate, TotalAmount, OrderID, SellerID)
+VALUES ('I003', SYSDATE(), 200, 'O002', 'SE001');
+
+INSERT INTO Invoice (InvoiceID, InvoiceDate, TotalAmount, OrderID, SellerID)
+VALUES ('I004', SYSDATE(), 250, 'O002', 'SE003');
+
+–View Invoice table
+SELECT * FROM Invoice;
+
+–Update Invoice
+UPDATE Invoice
+SET TotalAmount = 170
+WHERE InvoiceID = 'I003';
+
+–View Invoice table
+SELECT * FROM Invoice;
+
+
+
+
+-Customer
+INSERT INTO Customer (CustomerID, CustomerName, fNAME, lName, ContactNo, Street, City, Postcode) 
+VALUES 
+('C001', 'John Tan', 'John', 'Tan', '0121231234', 'Jalan Lily', 'Johor Bahru', '81100'),
+('C002', 'Jane Lee', 'Jane', 'Lee', '0198887766', 'Jalan Rose', 'Kuala Lumpur', '50200'),
+('C003', 'Emily Chong', 'Emily', 'Chong', '01110088765', 'Jalan Hibiscus', 'Kuala Lumpur', '58200');
+
+-Seller
+INSERT INTO Supplier (SupplierID, SupplierName, fName, lName, ContactNo, Email, Address, Street)
+VALUES 
+('S001', 'Fresh Fruits Co.', 'Mark', 'Lee', '0183344534', 'marklee@gmail.com', '123 Orchard Lane', 'Jalan Awan'),
+('S002', 'Tropical Delights', 'Susan', 'Kim', '0167772222', 'susankim@hotmail.com', '456 Mango Road', 'Jalan Bintang'),
+('S003', 'Berry World', 'James', 'Bond', '01387654321', 'jamesbond@gmail.com', '789 Berry Blvd', 'Jalan Bulan');
+
+
+-Supplier
+INSERT INTO Seller (SellerID, SellerName, fName, lName, ContactNo, Email, Location, CustomerID, SupplierID, InvoiceID)
+VALUES
+('SE001', 'Happy Seller', 'Anna', 'Taylor', '0125556666', 'annataylor@hotmail.com', 'Downtown Market', 'C001', 'S001', 'I001'),
+('SE002', 'Fresh Seller', 'Chris', 'Ngeow', '0174445555', 'chrisngeow@yahoo.com', 'City Square', 'C002', 'S002', 'I002'),
+('SE003', 'Fruit Hub', 'Kate', 'Pang', '0143334444', 'katepang@gmail.com', 'Market Place', 'C003', 'S003', 'I003');
